@@ -243,4 +243,144 @@ function links(value: unknown, fallback: Social[] = []): Social[] {
 }
 
 function theme(value: unknown): Theme {
-  const input = value && typeof value === '
+  const input = value && typeof value === 'object' ? (value as Record<string, unknown>) : {}
+  const color = (key: keyof Theme) => {
+    const raw = text(input[key])
+    return /^#[0-9a-f]{3,8}$/i.test(raw) ? raw : defaultTheme[key]
+  }
+  return { bg: color('bg'), surface: color('surface'), fg: color('fg'), accent: color('accent'), accent2: color('accent2') }
+}
+
+function section(value: unknown, index: number): Section | null {
+  if (!value || typeof value !== 'object') return null
+  const input = value as Record<string, unknown>
+  const type = SECTION_TYPES.includes(input.type as SectionType) ? (input.type as SectionType) : 'custom'
+  const id = text(input.id).trim() || `section-${index + 1}`
+  return {
+    id,
+    type,
+    visible: flag(input.visible, true),
+    navLabel: text(input.navLabel),
+    eyebrow: text(input.eyebrow),
+    heading: text(input.heading),
+    note: text(input.note),
+    image: text(input.image),
+    links: links(input.links),
+  }
+}
+
+function project(value: unknown, index: number): Project | null {
+  if (!value || typeof value !== 'object') return null
+  const input = value as Record<string, unknown>
+  const hue = typeof input.hue === 'number' && Number.isFinite(input.hue) ? Math.round(input.hue) : 356
+  return {
+    id: text(input.id).trim() || `project-${index + 1}`,
+    title: text(input.title, 'Untitled'),
+    category: text(input.category),
+    year: text(input.year),
+    summary: text(input.summary),
+    description: text(input.description),
+    tags: strings(input.tags),
+    link: text(input.link),
+    repo: text(input.repo),
+    hue: Math.min(359, Math.max(0, hue)),
+    image: text(input.image),
+  }
+}
+
+/** Merges unknown input (D1 row, import, old localStorage) over the defaults. */
+export function normalizeContent(input: unknown): Content {
+  const base = clone(defaultContent)
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return base
+  const value = input as Record<string, unknown>
+
+  const sections = Array.isArray(value.sections)
+    ? value.sections.map(section).filter((item): item is Section => item !== null)
+    : base.sections
+
+  // Section ids become DOM anchors, so duplicates have to go.
+  const seen = new Set<string>()
+  const uniqueSections = sections.map((item) => {
+    let id = item.id
+    let suffix = 2
+    while (seen.has(id)) id = `${item.id}-${suffix++}`
+    seen.add(id)
+    return id === item.id ? item : { ...item, id }
+  })
+
+  const projects = Array.isArray(value.projects)
+    ? value.projects.map(project).filter((item): item is Project => item !== null)
+    : base.projects
+
+  const stats = Array.isArray(value.stats)
+    ? value.stats
+        .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object')
+        .map((item) => ({ value: text(item.value), label: text(item.label) }))
+    : base.stats
+
+  return {
+    ...base,
+    name: text(value.name, base.name),
+    role: text(value.role, base.role),
+    titles: strings(value.titles, base.titles),
+    tagline: text(value.tagline, base.tagline),
+    intro: text(value.intro, base.intro),
+    bio: strings(value.bio, base.bio),
+    location: text(value.location, base.location),
+    email: text(value.email, base.email),
+    phone: text(value.phone, base.phone),
+    available: flag(value.available, base.available),
+    portrait: text(value.portrait, base.portrait),
+    footerHeading: text(value.footerHeading, base.footerHeading),
+    footerNote: text(value.footerNote, base.footerNote),
+    socials: links(value.socials, base.socials),
+    stats,
+    skills: strings(value.skills, base.skills),
+    projects,
+    sections: uniqueSections,
+    theme: theme(value.theme),
+  }
+}
+
+let sectionCounter = 0
+
+export function createSection(type: SectionType): Section {
+  sectionCounter += 1
+  const id = `${type}-${Date.now().toString(36)}-${sectionCounter}`
+  if (type === 'custom') {
+    return {
+      id,
+      type,
+      visible: true,
+      navLabel: 'New',
+      eyebrow: 'New section',
+      heading: 'A new section',
+      note: 'Write anything here. Blank lines start a new paragraph.',
+      image: '',
+      links: [],
+    }
+  }
+  return {
+    id,
+    type,
+    visible: true,
+    navLabel: SECTION_LABELS[type],
+    eyebrow: '',
+    heading: '',
+    note: '',
+    image: '',
+    links: [],
+  }
+}
+
+export function safeHref(href: string): string {
+  const value = href.trim()
+  if (!value) return ''
+  if (value.startsWith('/') || value.startsWith('#')) return value
+  try {
+    const url = new URL(value)
+    return ['http:', 'https:', 'mailto:', 'tel:'].includes(url.protocol) ? value : ''
+  } catch {
+    return ''
+  }
+}
