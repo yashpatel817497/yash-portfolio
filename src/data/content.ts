@@ -103,7 +103,7 @@ export const defaultContent: Content = {
   email: '',
   phone: '',
   available: true,
-  portrait: '/portrait.jpg.png',
+  portrait: '/portrait.png',
   footerHeading: "Let's build\nsomething useful.",
   footerNote: 'Open to internships and software development roles.',
   socials: [{ label: 'LinkedIn', href: 'https://www.linkedin.com/in/yash-patel-aiml' }],
@@ -166,7 +166,7 @@ export const defaultContent: Content = {
       eyebrow: '01 — About',
       heading: 'AI-ML student,\nsoftware developer.',
       note: '',
-      image: '/portrait.jpg.png',
+      image: '/portrait.png',
       links: [],
     },
     {
