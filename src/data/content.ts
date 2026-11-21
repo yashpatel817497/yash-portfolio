@@ -139,9 +139,9 @@ export const defaultContent: Content = {
       year: '',
       summary: 'A department-wise library management system for academic cataloging and circulation.',
       description:
-        'DeptLib is a department-wise library management portal built for academic cataloging and circulation workflows. It was built with Next.js and deployed on Vercel, with a second deployment hosted on FreeBuff.\n\nAs team lead and full-stack developer, working with Saransh Gupta and Hari Om Shrivastava, I architected the portal and engineered an admin-restricted, role-based authentication flow that separates student access from administrative inventory privileges.\n\nDepartment-level book categorization, issue-request tracking, copy-count management, a student feedback pipeline and a book recommendation system make up the rest of the product.\n\nLive at deptlib-mits-ten.vercel.app and deptlib-eu37kj.freebuff.site.',
+        'DeptLib is a department-wise library management portal built for academic cataloging and circulation workflows. It was built with Next.js and deployed on Vercel, with a second deployment hosted on FreeBuff.\n\nAs team lead and full-stack developer, working with Saransh Gupta and HariOm Shrivastava, I architected the portal and engineered an admin-restricted, role-based authentication flow that separates student access from administrative inventory privileges.\n\nDepartment-level book categorization, issue-request tracking, copy-count management, a student feedback pipeline and a book recommendation system make up the rest of the product.\n\nLive at deptlib-mits-exag.vercel.app .',
       tags: ['Next.js', 'Role-based auth', 'Vercel', 'FreeBuff'],
-      link: 'https://deptlib-mits-ten.vercel.app',
+      link: 'https://deptlib-mits-exag.vercel.app',
       repo: '',
       hue: 356,
     },
